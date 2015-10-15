@@ -20,7 +20,6 @@ public class ThreadPool {
 	public void addJobToQueue(SocketWorkerThread t){
 		executorService.execute(t);
 	}
-
 	public void terminate() {
 		executorService.shutdownNow();
 	}

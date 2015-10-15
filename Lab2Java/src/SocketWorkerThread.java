@@ -12,7 +12,7 @@ import java.net.Socket;
 public class SocketWorkerThread implements Runnable {
 	private Socket socket;
 	private static final String NEW_LINE = "\\n";
-	private static final String STUDENT_ID_TOKEN = "123123123213123";
+	private static final String STUDENT_ID_TOKEN = "48ffb53659413c0ee24b09bffed47b329f7b5ac80c23d908e952e328814dfb49";
 	private InputStreamReader isr;
 	private OutputStreamWriter osw;
 	char[] buffer;

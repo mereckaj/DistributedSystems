@@ -2,8 +2,8 @@
  * Created by mereckaj on 12/10/15.
  */
 public class TestClient {
-	public static final int NUMBER_OF_TEST_THREADS = 1;
-	public static final int NUMBER_OF_CONNECTIONS_PER_THREAD = 1;
+	public static final int NUMBER_OF_TEST_THREADS = 10;
+	public static final int NUMBER_OF_CONNECTIONS_PER_THREAD = 50;
 	public static final int MAX_DELAY_BETWEEN_CONNECTIONS = 1; //2500ms
 	public static final int SERVER_PORT = 8000;
 

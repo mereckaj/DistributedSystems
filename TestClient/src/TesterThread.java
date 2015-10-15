@@ -1,5 +1,7 @@
 import java.io.*;
+import java.net.Inet4Address;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.Random;
 import java.util.concurrent.ThreadFactory;
 
@@ -37,7 +39,7 @@ public class TesterThread extends Thread {
 				e.printStackTrace();
 			}
 			try {
-				s = new Socket("10.6.67.143",port);
+				s = new Socket("0.0.0.0",port);
 				osw = new OutputStreamWriter(s.getOutputStream());
 				osw.write(message.toCharArray());
 				osw.flush();
