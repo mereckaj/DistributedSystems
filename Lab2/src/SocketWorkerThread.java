@@ -23,6 +23,7 @@ public class SocketWorkerThread implements Runnable {
 
 	@Override
 	public void run() {
+		System.out.println("Running new process");
 		try {
 			isr = new InputStreamReader(socket.getInputStream());
 			osw = new OutputStreamWriter(socket.getOutputStream());
@@ -41,20 +42,21 @@ public class SocketWorkerThread implements Runnable {
 	private void doAction(String msg){
 		if(msg.contains(Main.SERVICE_MESSAGE_HELO) && msg.contains("\n")){
 			doRespondToHelo(msg);
-		}else if(msg.equals(Main.SERVICE_MESSAGE_TERMINATE)){
+		}else if(msg.contains(Main.SERVICE_MESSAGE_TERMINATE)){
 			doTerminate();
 		}else{
 			System.out.println("Error=>" + msg);
 		}
 	}
 	private void doTerminate(){
+		System.out.println("Shut down message received");
 		Main.s.terminate();
 	}
 
 	private void doRespondToHelo(String msg){
 		String text = msg.substring(Main.SERVICE_MESSAGE_HELO.length()+1,msg.length()-1);
 		String repsponse = "HELO " + text + NEW_LINE +
-				"IP:" + socket.getLocalAddress() + NEW_LINE +
+				"IP:" + socket.getLocalAddress().toString().substring(1) + NEW_LINE +
 				"Port:" + Main.PORT + NEW_LINE +
 				"StudentID:" + STUDENT_ID_TOKEN + NEW_LINE;
 		System.out.println("Reply=>" + repsponse);

@@ -33,8 +33,11 @@ public class Server {
 	public void terminate(){
 		try {
 			running = false;
+			System.out.println("Running = false");
 			tp.terminate();
+			System.out.println("TP terminated");
 			serverSocket.close();
+			System.out.println("Socket closed");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
