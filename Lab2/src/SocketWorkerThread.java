@@ -54,7 +54,7 @@ public class SocketWorkerThread implements Runnable {
 	private void doRespondToHelo(String msg){
 		String text = msg.substring(Main.SERVICE_MESSAGE_HELO.length()+1,msg.length()-1);
 		String repsponse = "HELO " + text + NEW_LINE +
-				"IP:" + socket.getInetAddress() + NEW_LINE +
+				"IP:" + socket.getLocalAddress() + NEW_LINE +
 				"Port:" + Main.PORT + NEW_LINE +
 				"StudentID:" + STUDENT_ID_TOKEN + NEW_LINE;
 		System.out.println("Reply=>" + repsponse);

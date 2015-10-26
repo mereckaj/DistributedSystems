@@ -18,6 +18,8 @@ public class TesterThread extends Thread {
 	private BufferedReader br;
 	private static final int BUFFER_SIZE = 1024;
 	private static final String message = "HELO fake message here\\n";
+	private static final String HOST = "188.166.36.191";
+	private static final int PORT = 8000;
 //	private static final String message = "KILL_SERVICE\\n";
 	public TesterThread(int port, int connectionCount){
 		this.port = port;
@@ -39,7 +41,7 @@ public class TesterThread extends Thread {
 				e.printStackTrace();
 			}
 			try {
-				s = new Socket("0.0.0.0",port);
+				s = new Socket(HOST,PORT);
 				osw = new OutputStreamWriter(s.getOutputStream());
 				osw.write(message.toCharArray());
 				osw.flush();
