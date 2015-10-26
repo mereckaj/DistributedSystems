@@ -11,13 +11,14 @@ import java.net.Socket;
  */
 public class SocketWorkerThread implements Runnable {
 	private Socket socket;
-	private static final String NEW_LINE = "\\n";
+	private static final String NEW_LINE = "\n";
 	private static final String STUDENT_ID_TOKEN = "48ffb53659413c0ee24b09bffed47b329f7b5ac80c23d908e952e328814dfb49";
 	private InputStreamReader isr;
 	private OutputStreamWriter osw;
 	char[] buffer;
 	public SocketWorkerThread(Socket s){
 		this.socket = s;
+		System.out.println("Accepted one more");
 	}
 
 	@Override
@@ -28,7 +29,9 @@ public class SocketWorkerThread implements Runnable {
 			// Make sure the buffer is clean;
 			buffer = new char[Main.BUFFER_SIZE];
 			int charactersRead = isr.read(buffer,0,buffer.length);
-			doAction(new String(buffer,0,charactersRead));
+			String s = new String(buffer,0,charactersRead);
+			System.out.println(s);
+			doAction(s);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -36,12 +39,12 @@ public class SocketWorkerThread implements Runnable {
 	}
 
 	private void doAction(String msg){
-		if(msg.contains(Main.SERVICE_MESSAGE_HELO) && msg.contains("\\n")){
+		if(msg.contains(Main.SERVICE_MESSAGE_HELO) && msg.contains("\n")){
 			doRespondToHelo(msg);
 		}else if(msg.equals(Main.SERVICE_MESSAGE_TERMINATE)){
 			doTerminate();
 		}else{
-			System.out.println("Error");
+			System.out.println("Error=>" + msg);
 		}
 	}
 	private void doTerminate(){
@@ -49,11 +52,12 @@ public class SocketWorkerThread implements Runnable {
 	}
 
 	private void doRespondToHelo(String msg){
-		String text = msg.substring(Main.SERVICE_MESSAGE_HELO.length()+1,msg.length()-2);
+		String text = msg.substring(Main.SERVICE_MESSAGE_HELO.length()+1,msg.length()-1);
 		String repsponse = "HELO " + text + NEW_LINE +
 				"IP:" + socket.getInetAddress() + NEW_LINE +
 				"Port:" + Main.PORT + NEW_LINE +
 				"StudentID:" + STUDENT_ID_TOKEN + NEW_LINE;
+		System.out.println("Reply=>" + repsponse);
 		try {
 			osw.write(repsponse,0,repsponse.length());
 			osw.flush();

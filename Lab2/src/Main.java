@@ -7,7 +7,7 @@ import java.net.ServerSocket;
 public class Main {
 	public static int PORT;
 	public static final int BUFFER_SIZE = 1024;
-	public static final String SERVICE_MESSAGE_TERMINATE = "KILL_SERVICE\\n";
+	public static final String SERVICE_MESSAGE_TERMINATE = "KILL_SERVICE\n";
 	public static final String SERVICE_MESSAGE_HELO = "HELO";
 	public static Server s;
 	public static void main(String[] args){
