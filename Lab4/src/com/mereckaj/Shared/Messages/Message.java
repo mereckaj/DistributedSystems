@@ -29,4 +29,11 @@ public class Message implements Serializable{
 				receiver + ":" +
 				group;
 	}
+	public String getMessage(){
+		return this.toString();
+	}
+
+	public void fromString(String s) {
+
+	}
 }

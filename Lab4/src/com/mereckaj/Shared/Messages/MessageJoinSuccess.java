@@ -20,6 +20,6 @@ public class MessageJoinSuccess extends Message implements Serializable {
 				+ "PORT: 0\n"
 				+ "ROOM_REF" + "0" + "\n"
 				+ "JOIN_ID" + "0" + "\n";
-		sender = ServerMain.server.serverClient;
+		sender = ServerMain.server.getServerClient();
 	}
 }

@@ -18,4 +18,11 @@ public class MessageJoin extends Message implements Serializable{
 				"CLIENT_NAME: " + username + "\n";
 		sender = new Client(username);
 	}
+
+	public MessageJoin() {
+	}
+	public void fromString(String s){
+
+		return null;
+	}
 }
