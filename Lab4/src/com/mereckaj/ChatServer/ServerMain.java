@@ -1,13 +1,11 @@
 package com.mereckaj.ChatServer;
 
-import com.mereckaj.Shared.Client;
-
 /**
  * Created by mereckaj on 11/12/15.
  */
 public class ServerMain{
 	public static int PORT;
-	public static Server s;
+	public static Server server;
 
 	public static void main(String[] args){
 		if(args.length<1){
@@ -15,8 +13,8 @@ public class ServerMain{
 		}else{
 			parseArguments(args);
 		}
-		s = new Server(PORT);
-		s.run();
+		server = new Server(PORT);
+		server.run();
 	}
 	private static void parseArguments(String[] args) {
 		PORT = new Integer(args[0]);

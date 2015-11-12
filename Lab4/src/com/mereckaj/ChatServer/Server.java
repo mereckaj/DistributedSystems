@@ -19,7 +19,7 @@ public class Server {
 	public boolean running;
 	private ServerSocket serverSocket;
 	ThreadPool tp = ThreadPool.getInstance();
-	public Client serverClient;
+	private Client serverClient;
 	public Server(int port){
 		this.serverClient = new Client("SERVER");
 		this.port = port;
@@ -53,5 +53,9 @@ public class Server {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public Client getServerClient() {
+		return serverClient;
 	}
 }

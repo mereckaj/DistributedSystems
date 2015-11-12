@@ -1,6 +1,9 @@
 package com.mereckaj.ChatServer;
 
 import com.mereckaj.Shared.Messages.Message;
+import com.mereckaj.Shared.Messages.MessageError;
+import com.mereckaj.Shared.Messages.MessageJoin;
+import com.mereckaj.Shared.Messages.MessageJoinSuccess;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -27,14 +30,37 @@ public class SocketWorkerThread implements Runnable {
 
 	@Override
 	public void run() {
-//		while(true){
+		while(true){
 			try {
 				Message m = (Message) ois.readObject();
+				dealWithMessage(m);
 			} catch (IOException e) {
 				e.printStackTrace();
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 			}
-//		}
+		}
+	}
+
+	private void dealWithMessage(Message m) {
+		if(m instanceof MessageJoin){
+			//TODO: Join user to channel
+			sendJoinReply((MessageJoin) m);
+		}else if(m instanceof MessageError){
+			sendErrorReply(m);
+		}else {
+			MessageError me = new MessageError("Cant determine message type: " + m,MessageError.UNDETERMINED_MESSAGE_RECEIVED,ServerMain.server.getServerClient());
+			sendErrorReply(me);
+		}
+	}
+
+	private void sendErrorReply(Message m) {
+		//TODO: Add to sending queue
+	}
+
+
+	private void sendJoinReply(MessageJoin mj) {
+		MessageJoinSuccess mjs = new MessageJoinSuccess(mj,socket.getLocalAddress().toString().substring(1));
+		//TODO: Add to sending quque
 	}
 }
