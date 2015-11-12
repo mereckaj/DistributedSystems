@@ -1,25 +1,33 @@
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Created by mereckaj on 11/7/15.
  */
 public class Client {
-	private String client_name;
+	private String name;
 	private Socket socket;
-	private Queue<Message> messageQueue;
+	private BlockingQueue<Message> messageQueue;
 	public Client(String name){
-		client_name = name;
-		messageQueue = new LinkedList<Message>();
+		this.name = name;
+		messageQueue = new LinkedBlockingQueue<Message>();
 	}
 	@Override
 	public String toString(){
-		if(client_name==null){
+		if(name ==null){
 			return "";
 		}else{
-			return client_name;
+			return name;
 		}
+	}
+	public void addMessageToQueue(Message m){
+		messageQueue.add(m);
+		System.out.println("Added message to " + this.toString() +"'s queue: " + m.toString());
+	}
+	public BlockingQueue<Message> getMessageQueue(){
+		return messageQueue;
 	}
 }
