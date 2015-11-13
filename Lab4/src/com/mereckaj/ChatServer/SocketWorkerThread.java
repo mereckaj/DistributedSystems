@@ -1,9 +1,6 @@
 package com.mereckaj.ChatServer;
 
 import com.mereckaj.Shared.Messages.Message;
-import com.mereckaj.Shared.Messages.MessageError;
-import com.mereckaj.Shared.Messages.MessageJoin;
-import com.mereckaj.Shared.Messages.MessageJoinSuccess;
 
 import java.io.*;
 import java.net.Socket;
@@ -30,12 +27,16 @@ public class SocketWorkerThread implements Runnable {
 	@Override
 	public void run() {
 //		while(true){
-			Message m = readMessage();
+			String m = readMessage();
 			dealWithMessage(m);
 //		}
 	}
 
-	private Message readMessage() {
+	private void dealWithMessage(String m) {
+
+	}
+
+	private String readMessage() {
 		char[] buffer = new char[RECEIVE_BUFFER_SIZE];
 		char[] result;
 		int read = 0;
@@ -46,41 +47,6 @@ public class SocketWorkerThread implements Runnable {
 		}
 		result = new char[read];
 		System.arraycopy(buffer,0,result,0,read);
-		return parseStringToMessageObject(new String(result));
-	}
-
-	private Message parseStringToMessageObject(String s) {
-		Message result = null;
-		if(s.contains("JOIN_CHATROOM: ")){
-			result = new MessageJoin();
-			result.fromString(s);
-		}
-	}
-
-	private void dealWithMessage(Message m) {
-		if(m instanceof MessageJoin){
-			//TODO: Join user to channel
-			addUserToGroup((MessageJoin) m);
-			sendJoinReply((MessageJoin) m);
-		}else if(m instanceof MessageError){
-			sendErrorReply(m);
-		}else {
-			MessageError me = new MessageError("Cant determine message type: " + m,MessageError.UNDETERMINED_MESSAGE_RECEIVED,ServerMain.server.getServerClient());
-			sendErrorReply(me);
-		}
-	}
-
-	private void addUserToGroup(MessageJoin m) {
-		//TODO: Add user to group
-	}
-
-	private void sendErrorReply(Message m) {
-		//TODO: Add to sending queue
-	}
-
-
-	private void sendJoinReply(MessageJoin mj) {
-		MessageJoinSuccess mjs = new MessageJoinSuccess(mj,socket.getLocalAddress().toString().substring(1));
-		//TODO: Add to sending quque
+		return new String(result);
 	}
 }

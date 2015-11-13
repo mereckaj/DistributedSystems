@@ -1,9 +1,8 @@
 package com.mereckaj.Client;
 
-import com.mereckaj.Shared.Messages.MessageJoin;
+import com.mereckaj.Shared.Messages.Message;
 
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 
@@ -15,9 +14,6 @@ public class ClientMain {
 		try {
 			Socket s = new Socket("0.0.0.0",8000);
 			OutputStreamWriter osw = new OutputStreamWriter(s.getOutputStream());
-			MessageJoin mj = new MessageJoin("TestUser1","TestGroup1");
-			osw.write(mj.getMessage(),0,0);
-			osw.flush();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
