@@ -22,7 +22,7 @@ public class MessageQueueWorkerThread extends Thread {
 		while(running){
 			try {
 				String m = messageQueue.take();
-				osw.write(m,0,0);
+				osw.write(m,0,m.length());
 				osw.flush();
 			} catch (InterruptedException e) {
 				//TODO: error report

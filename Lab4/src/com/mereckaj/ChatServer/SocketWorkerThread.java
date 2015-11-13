@@ -65,11 +65,20 @@ public class SocketWorkerThread implements Runnable {
 
 	private void joinClientToChannel(String clientName, String channelToJoin) {
 		String refs = addToChannel(clientName,channelToJoin);
-		int roomref = new Integer(refs.substring(0,refs.indexOf(":")));
-		int joinref = new Integer(refs.substring(refs.indexOf(":")+1));
-		createReply(roomref,joinref,channelToJoin);
+		if(refs==null){
+			System.out.println("User already exists");
+			createError(ErrorReporter.USERNAME_ALREADY_IN_USE_C,ErrorReporter.USERNAME_ALREADY_IN_USE_S);
+			return;
+		}
+		int memberRef = new Integer(refs.substring(0,refs.indexOf(":")));
+		int channelRef = new Integer(refs.substring(refs.indexOf(":")+1));
+		createReply(channelRef,memberRef,channelToJoin);
 	}
-
+	private void createError(int code, String message){
+		String reply = "ERROR_CODE: " + code +"\n"
+				+ "ERROR_DESCRIPTION: " + message + "\n";
+		addToSendQueue(reply);
+	}
 	private void createReply(int roomref, int joinref, String channelName) {
 		String reply = "JOINED_CHATROOM: " + channelName +"\n"
 				+ "SERVER_IP: " + socket.getLocalAddress().toString().substring(1) + "\n"
@@ -80,6 +89,7 @@ public class SocketWorkerThread implements Runnable {
 	}
 
 	private void addToSendQueue(String reply) {
+		System.out.println("Added to queue::\n" + reply);
 		sendQueueWorkerThread.addMessageToQueue(reply);
 	}
 
@@ -87,9 +97,10 @@ public class SocketWorkerThread implements Runnable {
 		int clientRef = getClientRefIfNotExist(clientName);
 		if(clientRef==-1){
 			//TODO: fucked user already exists
+			return null;
 		}
 		int channelRef = getChannelRefIfExistElseCreate(channelToJoin);
-		return "0:1";
+		return clientRef+":"+channelRef;
 	}
 
 	private int getChannelRefIfExistElseCreate(String channelToJoin) {
