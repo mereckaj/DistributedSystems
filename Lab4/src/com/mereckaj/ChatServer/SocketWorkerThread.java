@@ -84,8 +84,33 @@ public class SocketWorkerThread implements Runnable {
 	}
 
 	private String addToChannel(String clientName, String channelToJoin) {
-
+		int clientRef = getClientRefIfNotExist(clientName);
+		if(clientRef==-1){
+			//TODO: fucked user already exists
+		}
+		int channelRef = getChannelRefIfExistElseCreate(channelToJoin);
 		return "0:1";
+	}
+
+	private int getChannelRefIfExistElseCreate(String channelToJoin) {
+		if(ServerMain.server.channelList.containsKey(channelToJoin)){
+			return ServerMain.server.channelList.get(channelToJoin);
+		}else{
+			int newChannelRef = UniqueRefGenerator.nextChannelRef();
+			ServerMain.server.channelList.put(channelToJoin,newChannelRef);
+			return newChannelRef;
+		}
+	}
+
+	private int getClientRefIfNotExist(String clientName) {
+		if(ServerMain.server.memberRef.containsKey(clientName)) {
+			// User already exists with that name
+			return -1;
+		}else{
+			int newMemberRef = UniqueRefGenerator.nextClientRef();
+			ServerMain.server.memberRef.put(clientName,newMemberRef);
+			return newMemberRef;
+		}
 	}
 
 	private String readMessage() {

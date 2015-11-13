@@ -3,16 +3,10 @@ package com.mereckaj.ChatServer;
 /**
  * Created by mereckaj on 11/12/15.
  */
-import com.mereckaj.Shared.Client;
 
 import java.io.IOException;
-import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.ServerSocket;
-import java.net.SocketException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedList;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -23,11 +17,21 @@ public class Server {
 	public boolean running;
 	private ServerSocket serverSocket;
 	ThreadPool tp = ThreadPool.getInstance();
-	ConcurrentHashMap<String,LinkedList<String>> channels;
-	private Client serverClient;
+
+	// Channel name -> Channel Ref number
+	ConcurrentHashMap<String,Integer> channelList;
+
+	// Channel Ref number -> Member names as strings
+	ConcurrentHashMap<Integer,String> channelMembersByName;
+
+	// Member name as string -> Member Ref number
+	ConcurrentHashMap<String,Integer> memberRef;
+
+	// Constructor that creates a server on this machine listening on all interfaces at port
 	public Server(int port){
-		this.channels = new ConcurrentHashMap<String,LinkedList<String>>();
-		this.serverClient = new Client("SERVER");
+		this.channelList = new ConcurrentHashMap<String,Integer>();
+		this.channelMembersByName = new ConcurrentHashMap<Integer,String>();
+		this.memberRef = new ConcurrentHashMap<String,Integer>();
 		this.port = port;
 		this.running = true;
 		try {
@@ -36,7 +40,9 @@ public class Server {
 			e.printStackTrace();
 		}
 	}
-	public void run(){
+
+	// Start the server
+	public void start(){
 		while(running){
 			try {
 				tp.addJobToQueue(new SocketWorkerThread(serverSocket.accept()));
@@ -45,23 +51,21 @@ public class Server {
 			}
 		}
 	}
+
+	// Getter for server socket (Necessary so that server can be shutdown
 	public ServerSocket getSocket(){
 		return serverSocket;
 	}
+
+	// Closes the server socket, shuts down the ThreadPool
 	public void terminate(){
 		try {
 			running = false;
-			System.out.println("Running = false");
 			tp.terminate();
-			System.out.println("TP terminated");
 			serverSocket.close();
-			System.out.println("Socket closed");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
-	public Client getServerClient() {
-		return serverClient;
-	}
 }

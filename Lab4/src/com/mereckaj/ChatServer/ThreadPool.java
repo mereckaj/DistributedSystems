@@ -9,7 +9,7 @@ import java.util.concurrent.Executors;
 import static java.lang.Thread.sleep;
 
 public class ThreadPool {
-	public static int THREAD_POOL_SIZE = 5;
+	public static int THREAD_POOL_SIZE = 50;
 	private static ThreadPool instance = new ThreadPool();
 	private ExecutorService executorService;
 	private ThreadPool(){

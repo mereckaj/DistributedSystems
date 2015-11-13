@@ -14,7 +14,7 @@ public class ServerMain{
 			parseArguments(args);
 		}
 		server = new Server(PORT);
-		server.run();
+		server.start();
 	}
 	private static void parseArguments(String[] args) {
 		PORT = new Integer(args[0]);
