@@ -7,6 +7,7 @@ package com.mereckaj.ChatServer;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -18,20 +19,26 @@ public class Server {
 	private ServerSocket serverSocket;
 	ThreadPool tp = ThreadPool.getInstance();
 
-	// Channel name -> Channel Ref number
-	ConcurrentHashMap<String,Integer> channelList;
+	// Maps for channels
+	ConcurrentHashMap<Integer,String> channelTableByRef;
+	ConcurrentHashMap<String,Integer> channelTableByName;
 
-	// Channel Ref number -> Member names as strings
-	ConcurrentHashMap<Integer,String> channelMembersByName;
+	// Maps for members
+	ConcurrentHashMap<Integer,String> memberTableByRef;
+	ConcurrentHashMap<String,Integer> memberTableByName;
 
-	// Member name as string -> Member Ref number
-	ConcurrentHashMap<String,Integer> memberRef;
+	// Channel ref -> (UserRef, Socket)
+	ConcurrentHashMap<Integer,ConcurrentHashMap<Integer,Socket>> channelMembers;
+
+
 
 	// Constructor that creates a server on this machine listening on all interfaces at port
 	public Server(int port){
-		this.channelList = new ConcurrentHashMap<String,Integer>();
-		this.channelMembersByName = new ConcurrentHashMap<Integer,String>();
-		this.memberRef = new ConcurrentHashMap<String,Integer>();
+		channelTableByRef = new ConcurrentHashMap<>();
+		channelTableByName = new ConcurrentHashMap<>();
+		memberTableByRef = new ConcurrentHashMap<>();
+		memberTableByName = new ConcurrentHashMap<>();
+		channelMembers = new ConcurrentHashMap<>();
 		this.port = port;
 		this.running = true;
 		try {

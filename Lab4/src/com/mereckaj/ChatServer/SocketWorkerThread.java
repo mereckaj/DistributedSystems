@@ -2,6 +2,8 @@ package com.mereckaj.ChatServer;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.LinkedList;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by mereckaj on 11/12/15.
@@ -46,11 +48,16 @@ public class SocketWorkerThread implements Runnable {
 				String clientName = mLines[3].substring(mLines[3].indexOf(":")+2);
 				joinClientToChannel(clientName,channelToJoin);
 			}else if(mLines[0].contains("JOINED_CHATROOM:")){
-				// Reply to join
+				// Reply to join (Don't care; drop the message)
 			}else if(mLines[0].contains("ERROR_CODE:")){
-				// Error message
+				// Error message (Should only come from the server, print to stderr just in case)
+				System.err.println(m);
 			}else if(mLines[0].contains("LEAVE_CHATROOM:")){
 				// Leave message
+				int roomRef = Integer.parseInt(mLines[0].substring(mLines[0].indexOf(":")));
+				int memeberRef = Integer.parseInt(mLines[1].substring(mLines[1].indexOf(":")));
+				String memberName = mLines[2].substring(mLines[2].indexOf(":"));
+				removeClientFromChannel(roomRef,memeberRef,memberName);
 			}else if(mLines[0].contains("DISCONNECT:")){
 				// Disconnect message
 			}else if(mLines[0].contains("CHAT: ")){
@@ -61,6 +68,10 @@ public class SocketWorkerThread implements Runnable {
 			}
 		}
 
+	}
+
+	private void removeClientFromChannel(int roomRef, int memeberRef, String memberName) {
+//		ServerMain.server.channelMembersByName.get(roomRef);
 	}
 
 	private void joinClientToChannel(String clientName, String channelToJoin) {
@@ -94,33 +105,66 @@ public class SocketWorkerThread implements Runnable {
 	}
 
 	private String addToChannel(String clientName, String channelToJoin) {
-		int clientRef = getClientRefIfNotExist(clientName);
-		if(clientRef==-1){
-			//TODO: fucked user already exists
-			return null;
-		}
+		int clientRef = getClientRefIfExistElseCreate(clientName);
 		int channelRef = getChannelRefIfExistElseCreate(channelToJoin);
+		if(userExistsInChannel(channelRef,clientRef)){
+			System.out.println("User already in channel");
+			createError(ErrorReporter.USER_ALREADY_IN_GROUP_C,ErrorReporter.USER_ALREADY_IN_GROUP_S);
+		}else{
+			//TODO: Add to channel
+			addUserToChannel(channelRef,clientRef);
+		}
 		return clientRef+":"+channelRef;
 	}
 
+	private void addUserToChannel(int channelRef, int clientRef) {
+		Server s = ServerMain.server;
+		if(!s.channelMembers.containsKey(channelRef)) {
+			s.channelMembers.put(channelRef, new ConcurrentHashMap<Integer, Socket>());
+		}
+		s.channelMembers.get(channelRef).put(clientRef,socket);
+	}
+
+	private boolean userExistsInChannel(int channelRef, int clientRef) {
+		System.out.println("Checking if " + clientRef + " is in " + channelRef);
+		Server s = ServerMain.server;
+		if(s.channelMembers.containsKey(channelRef)){
+			boolean found = s.channelMembers.get(channelRef).containsKey(clientRef);
+			System.out.println("User: " + clientRef + " in: " + channelRef + " was " + (found==true?"found":"not found"));
+			return found;
+		}
+		System.out.println("No channel with ref " + channelRef);
+		return false;
+	}
+
 	private int getChannelRefIfExistElseCreate(String channelToJoin) {
-		if(ServerMain.server.channelList.containsKey(channelToJoin)){
-			return ServerMain.server.channelList.get(channelToJoin);
+		Server s = ServerMain.server;
+		if(s.channelTableByName.containsKey(channelToJoin)){
+			int ref = s.channelTableByName.get(channelToJoin);
+			System.out.println("Found Channel: "+channelToJoin+" with ref: " + ref);
+			return ref;
 		}else{
-			int newChannelRef = UniqueRefGenerator.nextChannelRef();
-			ServerMain.server.channelList.put(channelToJoin,newChannelRef);
-			return newChannelRef;
+			int ref = UniqueRefGenerator.nextChannelRef();
+			System.out.println("Non Channel: "+channelToJoin+". Created with ref: " + ref);
+			s.channelTableByName.put(channelToJoin,ref);
+			s.channelTableByRef.put(ref,channelToJoin);
+			s.channelMembers.put(ref,new ConcurrentHashMap<Integer, Socket>());
+			return ref;
 		}
 	}
 
-	private int getClientRefIfNotExist(String clientName) {
-		if(ServerMain.server.memberRef.containsKey(clientName)) {
-			// User already exists with that name
-			return -1;
+	private int getClientRefIfExistElseCreate(String clientName) {
+		Server s = ServerMain.server;
+		if(s.memberTableByName.containsKey(clientName)){
+			int ref = s.memberTableByName.get(clientName);
+			System.out.println("Found User: "+clientName + " with ref: " + ref);
+			return ref;
 		}else{
-			int newMemberRef = UniqueRefGenerator.nextClientRef();
-			ServerMain.server.memberRef.put(clientName,newMemberRef);
-			return newMemberRef;
+			int ref = UniqueRefGenerator.nextClientRef();
+			System.out.println("Non User: "+clientName + ". Created with ref: " + ref);
+			s.memberTableByName.put(clientName,ref);
+			s.memberTableByRef.put(ref,clientName);
+			return ref;
 		}
 	}
 
