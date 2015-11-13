@@ -1,7 +1,5 @@
 package com.mereckaj.ChatServer;
 
-import com.mereckaj.Shared.Messages.Message;
-
 import java.io.*;
 import java.net.Socket;
 
@@ -13,12 +11,13 @@ public class SocketWorkerThread implements Runnable {
 	private Socket socket;
 	private InputStreamReader isr;
 	private OutputStreamWriter osw;
+	private MessageQueueWorkerThread sendQueueWorkerThread;
 	public SocketWorkerThread(Socket socket) {
-		System.out.println("Accepted new connection");
 		this.socket = socket;
 		try {
 			isr = new InputStreamReader(socket.getInputStream());
 			osw = new OutputStreamWriter(socket.getOutputStream());
+			sendQueueWorkerThread = new MessageQueueWorkerThread(osw);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -26,6 +25,9 @@ public class SocketWorkerThread implements Runnable {
 
 	@Override
 	public void run() {
+		System.out.println("Starting send queue worker");
+		sendQueueWorkerThread.start();
+		System.out.println("send queue worker running");
 //		while(true){
 		String m = readMessage();
 		dealWithMessage(m);
@@ -37,8 +39,12 @@ public class SocketWorkerThread implements Runnable {
 		if(mLines.length < 1){
 			System.out.println("What is this message?: " + m);
 		}else{
+			System.out.println("Message has : " + mLines.length +" lines");
 			if(mLines[0].contains("JOIN_CHATROOM:")){
 				// Join message
+				String channelToJoin = mLines[0].substring(mLines[0].indexOf(":")+2);
+				String clientName = mLines[3].substring(mLines[3].indexOf(":")+2);
+				joinClientToChannel(clientName,channelToJoin);
 			}else if(mLines[0].contains("JOINED_CHATROOM:")){
 				// Reply to join
 			}else if(mLines[0].contains("ERROR_CODE:")){
@@ -50,10 +56,36 @@ public class SocketWorkerThread implements Runnable {
 			}else if(mLines[0].contains("CHAT: ")){
 				// Message message
 			}else{
+				System.out.println("Bad msg");
 				// IDK message
 			}
 		}
 
+	}
+
+	private void joinClientToChannel(String clientName, String channelToJoin) {
+		String refs = addToChannel(clientName,channelToJoin);
+		int roomref = new Integer(refs.substring(0,refs.indexOf(":")));
+		int joinref = new Integer(refs.substring(refs.indexOf(":")+1));
+		createReply(roomref,joinref,channelToJoin);
+	}
+
+	private void createReply(int roomref, int joinref, String channelName) {
+		String reply = "JOINED_CHATROOM: " + channelName +"\n"
+				+ "SERVER_IP: " + socket.getLocalAddress().toString().substring(1) + "\n"
+				+ "PORT: " + socket.getPort() + "\n"
+				+ "ROOM_REF: " + roomref + "\n"
+				+ "JOIN_ID: " + joinref + "\n";
+		addToSendQueue(reply);
+	}
+
+	private void addToSendQueue(String reply) {
+		sendQueueWorkerThread.addMessageToQueue(reply);
+	}
+
+	private String addToChannel(String clientName, String channelToJoin) {
+
+		return "0:1";
 	}
 
 	private String readMessage() {
@@ -61,7 +93,7 @@ public class SocketWorkerThread implements Runnable {
 		char[] result;
 		int read = 0;
 		try {
-			read = isr.read(buffer,0,0);
+			read = isr.read(buffer,0,buffer.length);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

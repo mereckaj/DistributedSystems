@@ -10,6 +10,10 @@ import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.SocketException;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by mereckaj on 12/10/15.
@@ -19,8 +23,10 @@ public class Server {
 	public boolean running;
 	private ServerSocket serverSocket;
 	ThreadPool tp = ThreadPool.getInstance();
+	ConcurrentHashMap<String,LinkedList<String>> channels;
 	private Client serverClient;
 	public Server(int port){
+		this.channels = new ConcurrentHashMap<String,LinkedList<String>>();
 		this.serverClient = new Client("SERVER");
 		this.port = port;
 		this.running = true;
