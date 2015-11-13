@@ -2,7 +2,6 @@ package com.mereckaj.ChatServer;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.LinkedList;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -54,10 +53,10 @@ public class SocketWorkerThread implements Runnable {
 				System.err.println(m);
 			}else if(mLines[0].contains("LEAVE_CHATROOM:")){
 				// Leave message
-				int roomRef = Integer.parseInt(mLines[0].substring(mLines[0].indexOf(":")));
-				int memeberRef = Integer.parseInt(mLines[1].substring(mLines[1].indexOf(":")));
+				int roomRef = Integer.parseInt(mLines[0].substring(mLines[0].indexOf(":")+2));
+				int memberRef = Integer.parseInt(mLines[1].substring(mLines[1].indexOf(":")+1).trim());
 				String memberName = mLines[2].substring(mLines[2].indexOf(":"));
-				removeClientFromChannel(roomRef,memeberRef,memberName);
+				removeClientFromChannel(roomRef,memberRef,memberName);
 			}else if(mLines[0].contains("DISCONNECT:")){
 				// Disconnect message
 			}else if(mLines[0].contains("CHAT: ")){
@@ -71,26 +70,37 @@ public class SocketWorkerThread implements Runnable {
 	}
 
 	private void removeClientFromChannel(int roomRef, int memeberRef, String memberName) {
-//		ServerMain.server.channelMembersByName.get(roomRef);
+		Server s = ServerMain.server;
+		if(s.channelMembers.containsKey(roomRef)){
+			if(s.channelMembers.get(roomRef).containsKey(memeberRef)){
+				s.channelMembers.get(roomRef).remove(memeberRef);
+				sendLeaveReply(roomRef,memeberRef);
+			}
+		}
+	}
+
+	private void sendLeaveReply(int roomRef, int memeberRef) {
+		String reply = "LEFT_CHATROOM: " + roomRef + "\n"
+				+"JOIN_ID: " + memeberRef +"\n";
+		addToSendQueue(reply);
+		//TODO: Close socket ?
 	}
 
 	private void joinClientToChannel(String clientName, String channelToJoin) {
 		String refs = addToChannel(clientName,channelToJoin);
 		if(refs==null){
-			System.out.println("User already exists");
-			createError(ErrorReporter.USERNAME_ALREADY_IN_USE_C,ErrorReporter.USERNAME_ALREADY_IN_USE_S);
 			return;
 		}
 		int memberRef = new Integer(refs.substring(0,refs.indexOf(":")));
 		int channelRef = new Integer(refs.substring(refs.indexOf(":")+1));
-		createReply(channelRef,memberRef,channelToJoin);
+		sendJoinReply(channelRef,memberRef,channelToJoin);
 	}
 	private void createError(int code, String message){
 		String reply = "ERROR_CODE: " + code +"\n"
 				+ "ERROR_DESCRIPTION: " + message + "\n";
 		addToSendQueue(reply);
 	}
-	private void createReply(int roomref, int joinref, String channelName) {
+	private void sendJoinReply(int roomref, int joinref, String channelName) {
 		String reply = "JOINED_CHATROOM: " + channelName +"\n"
 				+ "SERVER_IP: " + socket.getLocalAddress().toString().substring(1) + "\n"
 				+ "PORT: " + socket.getPort() + "\n"
@@ -110,6 +120,7 @@ public class SocketWorkerThread implements Runnable {
 		if(userExistsInChannel(channelRef,clientRef)){
 			System.out.println("User already in channel");
 			createError(ErrorReporter.USER_ALREADY_IN_GROUP_C,ErrorReporter.USER_ALREADY_IN_GROUP_S);
+			return null;
 		}else{
 			//TODO: Add to channel
 			addUserToChannel(channelRef,clientRef);
