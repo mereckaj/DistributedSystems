@@ -27,12 +27,32 @@ public class SocketWorkerThread implements Runnable {
 	@Override
 	public void run() {
 //		while(true){
-			String m = readMessage();
-			dealWithMessage(m);
+		String m = readMessage();
+		dealWithMessage(m);
 //		}
 	}
 
 	private void dealWithMessage(String m) {
+		String[] mLines = m.split("\n");
+		if(mLines.length < 1){
+			System.out.println("What is this message?: " + m);
+		}else{
+			if(mLines[0].contains("JOIN_CHATROOM:")){
+				// Join message
+			}else if(mLines[0].contains("JOINED_CHATROOM:")){
+				// Reply to join
+			}else if(mLines[0].contains("ERROR_CODE:")){
+				// Error message
+			}else if(mLines[0].contains("LEAVE_CHATROOM:")){
+				// Leave message
+			}else if(mLines[0].contains("DISCONNECT:")){
+				// Disconnect message
+			}else if(mLines[0].contains("CHAT: ")){
+				// Message message
+			}else{
+				// IDK message
+			}
+		}
 
 	}
 
