@@ -67,7 +67,7 @@ public class SocketWorkerThread implements Runnable {
 				// Leave message
 				System.out.println("Leave->"+m);
 				int roomRef = Integer.parseInt(mLines[0].substring(mLines[0].indexOf(":")+1));
-				int memberRef = Integer.parseInt(mLines[1].substring(mLines[1].indexOf(":")).trim());
+				int memberRef = Integer.parseInt(mLines[1].substring(mLines[1].indexOf(":")+1).trim());
 				String memberName = mLines[2].substring(mLines[2].indexOf(":"));
 				removeClientFromChannel(roomRef,memberRef,memberName);
 			}else if(mLines[0].contains("DISCONNECT:")){
@@ -79,9 +79,9 @@ public class SocketWorkerThread implements Runnable {
 				// Message message
 				System.out.println("Message->"+m);
 				int roomRef = Integer.parseInt(mLines[0].substring(mLines[0].indexOf(":")+1));
-				int memberRef = Integer.parseInt(mLines[1].substring(mLines[1].indexOf(":")).trim());
-				String clientName = mLines[2].substring(mLines[2].indexOf(":"));
-				String message = mLines[3].substring(mLines[3].indexOf(":"));
+				int memberRef = Integer.parseInt(mLines[1].substring(mLines[1].indexOf(":")+1).trim());
+				String clientName = mLines[2].substring(mLines[2].indexOf(":")+1);
+				String message = mLines[3].substring(mLines[3].indexOf(":")+1);
 				sendMessageToGroup(roomRef,memberRef,clientName,message);
 //				System.out.println("Message from: " + clientName +"{"+memberRef+"} to: " + roomRef + ": " + message);
 
