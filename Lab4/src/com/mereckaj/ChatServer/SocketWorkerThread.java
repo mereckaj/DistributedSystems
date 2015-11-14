@@ -128,6 +128,8 @@ public class SocketWorkerThread implements Runnable {
 			if(s.channelMembers.get(roomRef).containsKey(memberRef)){
 				s.channelMembers.get(roomRef).remove(memberRef);
 				sendLeaveReply(roomRef,memberRef);
+				broadcast(roomRef,"CHAT:" + roomRef +"\n" +"CLIENT_NAME:"+memberName+"\nMESSAGE:"
+						+memberName+" has joined this chatroom." + "\n\n");
 			}else{
 				createError(ErrorReporter.USER_NOT_IN_GROUP_C,ErrorReporter.USER_NOT_IN_GROUP_S);
 			}
@@ -138,7 +140,7 @@ public class SocketWorkerThread implements Runnable {
 
 	private void sendLeaveReply(int roomRef, int memeberRef) {
 		String reply = "LEFT_CHATROOM:" + roomRef + "\n"
-				+ "JOIN_ID:" + memeberRef;
+				+ "JOIN_ID:" + memeberRef +"\n";
 		addToSendQueue(reply);
 	}
 
