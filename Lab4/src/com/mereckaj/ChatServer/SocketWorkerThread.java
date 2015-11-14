@@ -148,10 +148,10 @@ public class SocketWorkerThread implements Runnable {
 			return;
 		}
 		int memberRef = new Integer(refs.substring(0,refs.indexOf(":")));
-		int channelRef = new Integer(refs.substring(refs.indexOf(":")+1));
-		sendJoinReply(channelRef,memberRef,channelToJoin);
-		broadcast(channelRef,"CHAT: " + lookupMemberNameByRef(memberRef) + "\n");
-//		" joined " + channelToJoin + " : " + channelRef + "\n");
+		int roomRef = new Integer(refs.substring(refs.indexOf(":")+1));
+		sendJoinReply(roomRef,memberRef,channelToJoin);
+		broadcast(roomRef,"CHAT: " + roomRef +"\nJOIN_ID: " + memberRef +"\nCLIENT_NAME: "+clientName+"\nMESSAGE: "
+				+ clientName + " joined room " + ServerMain.server.channelTableByRef.get(roomRef)+ "\n\n");
 	}
 
 	private String lookupMemberNameByRef(int memberRef) {
