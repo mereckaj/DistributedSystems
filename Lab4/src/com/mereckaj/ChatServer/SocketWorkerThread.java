@@ -130,6 +130,8 @@ public class SocketWorkerThread implements Runnable {
 				sendLeaveReply(roomRef,memberRef);
 				broadcast(roomRef,"CHAT:" + roomRef +"\n" +"CLIENT_NAME:"+memberName+"\nMESSAGE:"
 						+memberName+" has left this chatroom." + "\n\n");
+				addToSendQueue("CHAT:" + roomRef +"\n" +"CLIENT_NAME:"+memberName+"\nMESSAGE:"
+						+memberName+" has left this chatroom." + "\n\n");
 			}else{
 				createError(ErrorReporter.USER_NOT_IN_GROUP_C,ErrorReporter.USER_NOT_IN_GROUP_S);
 			}
@@ -254,20 +256,22 @@ public class SocketWorkerThread implements Runnable {
 
 	private String readMessage() {
 		char[] buffer = new char[RECEIVE_BUFFER_SIZE];
-		char[] result;
+		char[] result = null;
 		int read = 0;
-		try {
-			read = isr.read(buffer,0,buffer.length);
-		} catch (IOException e) {
-			e.printStackTrace();
+		boolean get = true;
+		while(get) {
+			try {
+				read = isr.read(buffer, 0, buffer.length);
+				if(read>0){
+					result = new char[read];
+					System.arraycopy(buffer, 0, result, 0, read);
+					get = false;
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
-		if(read>0){
-			result = new char[read];
-			System.arraycopy(buffer, 0, result, 0, read);
-			return new String(result);
-		}else{
-			return "";
-		}
+		return new String(result);
 	}
 	private void terminate(){
 		try {
