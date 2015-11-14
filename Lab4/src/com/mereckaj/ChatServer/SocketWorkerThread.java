@@ -4,9 +4,6 @@ import java.io.*;
 import java.net.Socket;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Created by mereckaj on 11/12/15.
- */
 public class SocketWorkerThread implements Runnable {
 	public static final int RECEIVE_BUFFER_SIZE = 4096;
 	private Socket socket;
@@ -59,16 +56,49 @@ public class SocketWorkerThread implements Runnable {
 				removeClientFromChannel(roomRef,memberRef,memberName);
 			}else if(mLines[0].contains("DISCONNECT:")){
 				// Disconnect message
-			}else if(mLines[0].contains("CHAT: ")){
+				String memberName = mLines[2].substring(mLines[2].indexOf(":"));
+				disconnectUser(memberName);
+			}else if(mLines[0].contains("CHAT:")){
 				// Message message
-			}else if(mLines[0].contains("JOIN_BROADCAST:")){
+				int roomRef = Integer.parseInt(mLines[0].substring(mLines[0].indexOf(":")+2));
+				int memberRef = Integer.parseInt(mLines[1].substring(mLines[1].indexOf(":")+1).trim());
+				String clientName = mLines[2].substring(mLines[2].indexOf(":")+1);
+				String message = mLines[3].substring(mLines[3].indexOf(":")+1);
+				sendMessageToGroup(roomRef,memberRef,clientName,message);
+//				System.out.println("Message from: " + clientName +"{"+memberRef+"} to: " + roomRef + ": " + message);
 
+			}else if(mLines[0].contains("JOIN_BROADCAST:")){
+				System.out.println("join broadcast received");
 			}else {
 				System.out.println("Bad msg");
 				// IDK message
 			}
 		}
 
+	}
+
+	private void disconnectUser(String memberName) {
+		Server s = ServerMain.server;
+		int ref;
+		if(s.memberTableByName.containsKey(memberName)){
+			ref = s.memberTableByName.get(memberName);
+		}else{
+			System.out.println("User not found, closign this conenction");
+			this.terminate();
+		}
+	}
+
+	private void sendMessageToGroup(int roomRef, int memberRef, String clientName, String message) {
+		Server s = ServerMain.server;
+		if(s.channelMembers.containsKey(roomRef)){
+			if(s.channelMembers.get(roomRef).containsKey(memberRef)){
+				broadcast(roomRef,"CHAT: " + roomRef +"\nJOIN_ID: " + memberRef +"\nCLIENT_NAME: "+clientName+"\nMESSAGE: "+ message+ "\n\n");
+			}else{
+				createError(ErrorReporter.USER_NOT_IN_GROUP_C,ErrorReporter.USER_NOT_IN_GROUP_S);
+			}
+		}else{
+			createError(ErrorReporter.GROUP_NOT_EXIST_C,ErrorReporter.GROUP_NOT_EXIST_S);
+		}
 	}
 
 	private void removeClientFromChannel(int roomRef, int memberRef, String memberName) {
@@ -82,11 +112,9 @@ public class SocketWorkerThread implements Runnable {
 				broadcast(roomRef,"JOIN_BROADCAST: " + memberName + " left " + s.channelTableByRef.get(roomRef) + " : " + roomRef + "\n");
 			}else{
 				createError(ErrorReporter.USER_NOT_IN_GROUP_C,ErrorReporter.USER_NOT_IN_GROUP_S);
-				return;
 			}
 		}else{
 			createError(ErrorReporter.GROUP_NOT_EXIST_C,ErrorReporter.GROUP_NOT_EXIST_S);
-			return;
 		}
 	}
 
@@ -166,9 +194,8 @@ public class SocketWorkerThread implements Runnable {
 //		System.out.println("Checking if " + clientRef + " is in " + channelRef);
 		Server s = ServerMain.server;
 		if(s.channelMembers.containsKey(channelRef)){
-			boolean found = s.channelMembers.get(channelRef).containsKey(clientRef);
 //			System.out.println("User: " + clientRef + " in: " + channelRef + " was " + (found==true?"found":"not found"));
-			return found;
+			return  s.channelMembers.get(channelRef).containsKey(clientRef);
 		}
 		System.out.println("No channel with ref " + channelRef);
 		return false;
@@ -217,5 +244,16 @@ public class SocketWorkerThread implements Runnable {
 		result = new char[read];
 		System.arraycopy(buffer,0,result,0,read);
 		return new String(result);
+	}
+	private void terminate(){
+		try {
+			socket.close();
+			sendQueueWorkerThread.join();
+			Thread.currentThread().join();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 }
