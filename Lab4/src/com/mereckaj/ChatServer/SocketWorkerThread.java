@@ -41,7 +41,7 @@ public class SocketWorkerThread implements Runnable {
 			System.out.println("Message has : " + mLines.length +" lines");
 			if(mLines[0].contains("HELO")){
 				System.out.println("Helo->" + m);
-				String text = mLines[0].substring("HELO".length()+1,mLines[0].length()-1);
+				String text = mLines[0].substring("HELO".length()+1);
 				String response = "HELO " + text + "\n" +
 						"IP:" + socket.getLocalAddress().toString().substring(1) + "\n" +
 						"Port:" + ServerMain.PORT +
@@ -53,8 +53,8 @@ public class SocketWorkerThread implements Runnable {
 			}else if(mLines[0].contains("JOIN_CHATROOM:")){
 				// Join message
 				System.out.println("Join");
-				String channelToJoin = mLines[0].substring(mLines[0].indexOf(":")+2);
-				String clientName = mLines[3].substring(mLines[3].indexOf(":")+2);
+				String channelToJoin = mLines[0].substring(mLines[0].indexOf(":")+1);
+				String clientName = mLines[3].substring(mLines[3].indexOf(":")+1);
 				joinClientToChannel(clientName,channelToJoin);
 			}else if(mLines[0].contains("JOINED_CHATROOM:")){
 				System.out.println("Joined->"+m);
@@ -66,8 +66,8 @@ public class SocketWorkerThread implements Runnable {
 			}else if(mLines[0].contains("LEAVE_CHATROOM:")){
 				// Leave message
 				System.out.println("Leave->"+m);
-				int roomRef = Integer.parseInt(mLines[0].substring(mLines[0].indexOf(":")+2));
-				int memberRef = Integer.parseInt(mLines[1].substring(mLines[1].indexOf(":")+1).trim());
+				int roomRef = Integer.parseInt(mLines[0].substring(mLines[0].indexOf(":")+1));
+				int memberRef = Integer.parseInt(mLines[1].substring(mLines[1].indexOf(":")).trim());
 				String memberName = mLines[2].substring(mLines[2].indexOf(":"));
 				removeClientFromChannel(roomRef,memberRef,memberName);
 			}else if(mLines[0].contains("DISCONNECT:")){
@@ -78,10 +78,10 @@ public class SocketWorkerThread implements Runnable {
 			}else if(mLines[0].contains("CHAT:")){
 				// Message message
 				System.out.println("Message->"+m);
-				int roomRef = Integer.parseInt(mLines[0].substring(mLines[0].indexOf(":")+2));
-				int memberRef = Integer.parseInt(mLines[1].substring(mLines[1].indexOf(":")+1).trim());
-				String clientName = mLines[2].substring(mLines[2].indexOf(":")+1);
-				String message = mLines[3].substring(mLines[3].indexOf(":")+1);
+				int roomRef = Integer.parseInt(mLines[0].substring(mLines[0].indexOf(":")+1));
+				int memberRef = Integer.parseInt(mLines[1].substring(mLines[1].indexOf(":")).trim());
+				String clientName = mLines[2].substring(mLines[2].indexOf(":"));
+				String message = mLines[3].substring(mLines[3].indexOf(":"));
 				sendMessageToGroup(roomRef,memberRef,clientName,message);
 //				System.out.println("Message from: " + clientName +"{"+memberRef+"} to: " + roomRef + ": " + message);
 
