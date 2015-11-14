@@ -40,26 +40,32 @@ public class SocketWorkerThread implements Runnable {
 			System.out.println("Message has : " + mLines.length +" lines");
 			if(mLines[0].contains("JOIN_CHATROOM:")){
 				// Join message
+				System.out.println("Join");
 				String channelToJoin = mLines[0].substring(mLines[0].indexOf(":")+2);
 				String clientName = mLines[3].substring(mLines[3].indexOf(":")+2);
 				joinClientToChannel(clientName,channelToJoin);
 			}else if(mLines[0].contains("JOINED_CHATROOM:")){
+				System.out.println("Joined");
 				// Reply to join (Don't care; drop the message)
 			}else if(mLines[0].contains("ERROR_CODE:")){
+				System.out.println("Error");
 				// Error message (Should only come from the server, print to stderr just in case)
 				System.err.println(m);
 			}else if(mLines[0].contains("LEAVE_CHATROOM:")){
 				// Leave message
+				System.out.println("Leave");
 				int roomRef = Integer.parseInt(mLines[0].substring(mLines[0].indexOf(":")+2));
 				int memberRef = Integer.parseInt(mLines[1].substring(mLines[1].indexOf(":")+1).trim());
 				String memberName = mLines[2].substring(mLines[2].indexOf(":"));
 				removeClientFromChannel(roomRef,memberRef,memberName);
 			}else if(mLines[0].contains("DISCONNECT:")){
 				// Disconnect message
+				System.out.println("Disconnect");
 				String memberName = mLines[2].substring(mLines[2].indexOf(":"));
 				disconnectUser(memberName);
 			}else if(mLines[0].contains("CHAT:")){
 				// Message message
+				System.out.println("Message");
 				int roomRef = Integer.parseInt(mLines[0].substring(mLines[0].indexOf(":")+2));
 				int memberRef = Integer.parseInt(mLines[1].substring(mLines[1].indexOf(":")+1).trim());
 				String clientName = mLines[2].substring(mLines[2].indexOf(":")+1);
@@ -70,7 +76,7 @@ public class SocketWorkerThread implements Runnable {
 			}else if(mLines[0].contains("JOIN_BROADCAST:")){
 				System.out.println("join broadcast received");
 			}else {
-				System.out.println("Bad msg");
+				System.out.println("Bad msg" + m);
 				// IDK message
 			}
 		}
