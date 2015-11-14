@@ -44,7 +44,7 @@ public class SocketWorkerThread implements Runnable {
 				String text = mLines[0].substring("HELO".length()+1);
 				String response = "HELO " + text + "\n" +
 						"IP:" + socket.getLocalAddress().toString().substring(1) + "\n" +
-						"Port:" + ServerMain.PORT +
+						"Port:" + ServerMain.PORT + "\n"+
 						"StudentID:" + STUDENT_ID_TOKEN + "\n";
 				addToSendQueue(response);
 			}else if(mLines[0].contains("KILL_SERVICE")){
@@ -52,7 +52,7 @@ public class SocketWorkerThread implements Runnable {
 				ServerMain.server.terminate();
 			}else if(mLines[0].contains("JOIN_CHATROOM:")){
 				// Join message
-				System.out.println("Join");
+				System.out.println("Join->" + m);
 				String channelToJoin = mLines[0].substring(mLines[0].indexOf(":")+1);
 				String clientName = mLines[3].substring(mLines[3].indexOf(":")+1);
 				joinClientToChannel(clientName,channelToJoin);
