@@ -125,11 +125,7 @@ public class SocketWorkerThread implements Runnable {
 		if(s.channelMembers.containsKey(roomRef)){
 			if(s.channelMembers.get(roomRef).containsKey(memberRef)){
 				s.channelMembers.get(roomRef).remove(memberRef);
-//				System.out.println("Channel: " + roomRef + " has " + s.channelMembers.get(roomRef).size() + " users left");
 				sendLeaveReply(roomRef,memberRef);
-//				broadcast(roomRef,"LEAVE_CHATROOM: "+roomRef+"\n" +
-//						"JOIN_ID: "+memberRef+"\n" +
-//						"CLIENT_NAME: " + memberName);
 			}else{
 				createError(ErrorReporter.USER_NOT_IN_GROUP_C,ErrorReporter.USER_NOT_IN_GROUP_S);
 			}
@@ -140,7 +136,7 @@ public class SocketWorkerThread implements Runnable {
 
 	private void sendLeaveReply(int roomRef, int memeberRef) {
 		String reply = "LEFT_CHATROOM:" + roomRef + "\n"
-				+ "JOIN_ID:" + memeberRef +"\n";
+				+ "JOIN_ID:" + memeberRef;
 		addToSendQueue(reply);
 	}
 
@@ -184,7 +180,7 @@ public class SocketWorkerThread implements Runnable {
 	}
 
 	public void addToSendQueue(String reply) {
-//		System.out.println("Added to queue::\n" + reply);
+		System.out.println("Added to queue::\n" + reply);
 		sendQueueWorkerThread.addMessageToQueue(reply);
 	}
 
