@@ -35,7 +35,7 @@ public class MessageQueueWorkerThread extends Thread {
 	}
 
 	public void addMessageToQueue(String reply) {
-		System.out.println(">>Sending->" + replyw);
+		System.out.println(">>Sending->" + reply);
 		if(!messageQueue.add(reply)){
 			System.out.println("Failed to add message to queue");
 		}
