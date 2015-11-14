@@ -96,21 +96,21 @@ public class SocketWorkerThread implements Runnable {
 	}
 
 	private void disconnectUser(String memberName) {
-		Server s = ServerMain.server;
-		int ref;
-		if(s.memberTableByName.containsKey(memberName)){
-			ref = s.memberTableByName.get(memberName);
-		}else{
-			System.out.println("User not found, closign this conenction");
+//		Server s = ServerMain.server;
+//		int ref;
+//		if(s.memberTableByName.containsKey(memberName)){
+//			ref = s.memberTableByName.get(memberName);
+//		}else{
+//			System.out.println("User not found, closign this conenction");
 			this.terminate();
-		}
+//		}
 	}
 
 	private void sendMessageToGroup(int roomRef, int memberRef, String clientName, String message) {
 		Server s = ServerMain.server;
 		if(s.channelMembers.containsKey(roomRef)){
 			if(s.channelMembers.get(roomRef).containsKey(memberRef)){
-				broadcast(roomRef,"CHAT: " + roomRef +"\nJOIN_ID: " + memberRef +"\nCLIENT_NAME: "+clientName+"\nMESSAGE: "+ message+ "\n\n");
+				broadcast(roomRef,"CHAT:" + roomRef +"\nJOIN_ID:" + memberRef +"\nCLIENT_NAME:"+clientName+"\nMESSAGE:"+ message+ "\n\n");
 			}else{
 				createError(ErrorReporter.USER_NOT_IN_GROUP_C,ErrorReporter.USER_NOT_IN_GROUP_S);
 			}
@@ -137,8 +137,8 @@ public class SocketWorkerThread implements Runnable {
 	}
 
 	private void sendLeaveReply(int roomRef, int memeberRef) {
-		String reply = "LEFT_CHATROOM: " + roomRef + "\n"
-				+ "JOIN_ID: " + memeberRef +"\n";
+		String reply = "LEFT_CHATROOM:" + roomRef + "\n"
+				+ "JOIN_ID:" + memeberRef +"\n";
 		addToSendQueue(reply);
 	}
 
@@ -150,7 +150,7 @@ public class SocketWorkerThread implements Runnable {
 		int memberRef = new Integer(refs.substring(0,refs.indexOf(":")));
 		int roomRef = new Integer(refs.substring(refs.indexOf(":")+1));
 		sendJoinReply(roomRef,memberRef,channelToJoin);
-		broadcast(roomRef,"CHAT: " + roomRef +"\nJOIN_ID: " + memberRef +"\nCLIENT_NAME: "+clientName+"\nMESSAGE: "
+		broadcast(roomRef,"CHAT:" + roomRef +"\nJOIN_ID:" + memberRef +"\nCLIENT_NAME:"+clientName+"\nMESSAGE:"
 				+ clientName + " joined room " + ServerMain.server.channelTableByRef.get(roomRef)+ "\n\n");
 	}
 
@@ -169,16 +169,16 @@ public class SocketWorkerThread implements Runnable {
 	}
 
 	private void createError(int code, String message){
-		String reply = "ERROR_CODE: " + code +"\n"
-				+ "ERROR_DESCRIPTION: " + message + "\n";
+		String reply = "ERROR_CODE:" + code +"\n"
+				+ "ERROR_DESCRIPTION:" + message + "\n";
 		addToSendQueue(reply);
 	}
 	private void sendJoinReply(int roomref, int joinref, String channelName) {
-		String reply = "JOINED_CHATROOM: " + channelName +"\n"
-				+ "SERVER_IP: " + socket.getLocalAddress().toString().substring(1) + "\n"
-				+ "PORT: " + "0" + "\n"
-				+ "ROOM_REF: " + roomref + "\n"
-				+ "JOIN_ID: " + joinref + "\n";
+		String reply = "JOINED_CHATROOM:" + channelName +"\n"
+				+ "SERVER_IP:" + socket.getLocalAddress().toString().substring(1) + "\n"
+				+ "PORT:" + "0" + "\n"
+				+ "ROOM_REF:" + roomref + "\n"
+				+ "JOIN_ID:" + joinref + "\n";
 		addToSendQueue(reply);
 	}
 
@@ -223,9 +223,9 @@ public class SocketWorkerThread implements Runnable {
 	private int getChannelRefIfExistElseCreate(String channelToJoin) {
 		Server s = ServerMain.server;
 		if(s.channelTableByName.containsKey(channelToJoin)){
-			int ref = s.channelTableByName.get(channelToJoin);
+//			int ref = s.channelTableByName.get(channelToJoin);
 //			System.out.println("Found Channel: "+channelToJoin+" with ref: " + ref);
-			return ref;
+			return s.channelTableByName.get(channelToJoin);
 		}else{
 			int ref = UniqueRefGenerator.nextChannelRef();
 //			System.out.println("Non Channel: "+channelToJoin+". Created with ref: " + ref);
@@ -239,9 +239,9 @@ public class SocketWorkerThread implements Runnable {
 	private int getClientRefIfExistElseCreate(String clientName) {
 		Server s = ServerMain.server;
 		if(s.memberTableByName.containsKey(clientName)){
-			int ref = s.memberTableByName.get(clientName);
+//			int ref = s.memberTableByName.get(clientName);
 //			System.out.println("Found User: "+clientName + " with ref: " + ref);
-			return ref;
+			return s.memberTableByName.get(clientName);
 		}else{
 			int ref = UniqueRefGenerator.nextClientRef();
 //			System.out.println("Non User: "+clientName + ". Created with ref: " + ref);
@@ -269,9 +269,7 @@ public class SocketWorkerThread implements Runnable {
 			socket.close();
 			sendQueueWorkerThread.join();
 			Thread.currentThread().join();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (InterruptedException e) {
+		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
 		}
 	}
