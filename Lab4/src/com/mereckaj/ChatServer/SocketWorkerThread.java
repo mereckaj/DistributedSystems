@@ -261,6 +261,9 @@ public class SocketWorkerThread implements Runnable {
 		boolean get = true;
 		while(get) {
 			try {
+				if(socket.isClosed()){
+					terminate();
+				}
 				read = isr.read(buffer, 0, buffer.length);
 				if(read>0){
 					result = new char[read];
