@@ -18,17 +18,22 @@ public class Client {
 	boolean running;
 	public MessageQueueWorkerThread messageQueue;
 	public String username;
+	public String channelName;
+	public int channelRef = -1;
+	public int usernameRef = -1;
 	public static void main(String[] args) {
-		Client c = new Client();
 		if (args.length < 1) {
 			System.out.println("Usage: <program> <ip> <port>");
 		} else {
+			Client c = new Client();
 			c.parseArguments(args);
 			System.out.println("Connecting: " + c.ip +":"+ c.port);
 			c.run();
 		}
 	}
 	public Client(){
+	}
+	public void run(){
 		try {
 			s = new Socket(ip,port);
 			messageQueue = new MessageQueueWorkerThread(new OutputStreamWriter(s.getOutputStream()));
@@ -38,8 +43,6 @@ public class Client {
 		}
 		running = true;
 		scanner = new Scanner(System.in);
-	}
-	public void run(){
 		int choice = 0;
 		pickUsername();
 		while(running){
@@ -95,19 +98,74 @@ public class Client {
 	}
 
 	private void disconnect() {
-		addToSendQueue("");
+		addToSendQueue("DISCONNECT: 0\nPORT: 0\nCLIENT_NAME: " +username);
 	}
 
 	private void sendMessage() {
-
+		if(channelName!=null && channelRef !=-1 && usernameRef != -1) {
+			System.out.println("Enter message");
+			String msg = scanner.next();
+			if(msg!=null){
+				addToSendQueue("CHAT: "+channelRef+"\n" +
+						"JOIN_ID: "+usernameRef+"\n" +
+						"CLIENT_NAME: "+username+"\n" +
+						"MESSAGE: "+msg+"\n\n");
+			}
+		}else{
+			if(channelName==null) {
+				System.out.println("No channel selected");
+			}
+			if(channelRef==-1){
+				System.out.println("Wrong channel ref");
+			}
+			if(usernameRef==-1){
+				System.out.println("Wrong username ref");
+			}
+		}
 	}
 
 	private void leaveChatroom() {
-
+		if(channelName!=null && channelRef !=-1 && usernameRef != -1) {
+			addToSendQueue("LEAVE_CHATROOM: "+channelRef+"\n" +
+					"JOIN_ID: "+usernameRef+"\n" +
+					"CLIENT_NAME: " + username);
+			channelName = null;
+			channelRef = -1;
+			usernameRef = -1;
+		}else{
+			if(channelName==null) {
+				System.out.println("No channel selected");
+			}
+			if(channelRef==-1){
+				System.out.println("Wrong channel ref");
+			}
+			if(usernameRef==-1){
+				System.out.println("Wrong username ref");
+			}
+		}
 	}
 
 	private void joinChatroom() {
-
+		if(channelName==null && channelRef == -1 && usernameRef == -1) {
+			System.out.println("Enter channel name");
+			channelName = scanner.next();
+			if (channelName != "") {
+				addToSendQueue("JOIN_CHATROOM: "+channelName+"\n" +
+						"CLIENT_IP: 0\n" +
+						"PORT: 0\n" +
+						"CLIENT_NAME: "+username);
+			}
+		}else{
+			if(channelName!=null) {
+				System.out.println("Channel already selected");
+			}
+			if(channelRef!=-1){
+				System.out.println("Wrong channel ref");
+			}
+			if(usernameRef!=-1){
+				System.out.println("Wrong username ref");
+			}
+		}
 	}
 
 	private int showMenu() {
