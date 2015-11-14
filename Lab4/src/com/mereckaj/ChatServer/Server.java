@@ -28,7 +28,7 @@ public class Server {
 	ConcurrentHashMap<String,Integer> memberTableByName;
 
 	// Channel ref -> (UserRef, Socket)
-	ConcurrentHashMap<Integer,ConcurrentHashMap<Integer,Socket>> channelMembers;
+	ConcurrentHashMap<Integer,ConcurrentHashMap<Integer,SocketWorkerThread>> channelMembers;
 
 
 
@@ -75,4 +75,11 @@ public class Server {
 		}
 	}
 
+	public void broadcast(int channelref, String reply) {
+		ConcurrentHashMap<Integer,SocketWorkerThread> usrs = channelMembers.get(channelref);
+		for(Integer i : usrs.keySet()){
+			usrs.get(i).addToSendQueue(reply);
+			System.out.println("Sent message to: " + i);
+		}
+	}
 }

@@ -54,14 +54,16 @@ public class SocketWorkerThread implements Runnable {
 			}else if(mLines[0].contains("LEAVE_CHATROOM:")){
 				// Leave message
 				int roomRef = Integer.parseInt(mLines[0].substring(mLines[0].indexOf(":")+2));
-				int memberRef = Integer.parseInt(mLines[1].substring(mLines[1].indexOf(":")+1).trim());
+				int memberRef = Integer.parseInt((mLines[1].substring(mLines[1].indexOf(":")+1)).trim());
 				String memberName = mLines[2].substring(mLines[2].indexOf(":"));
 				removeClientFromChannel(roomRef,memberRef,memberName);
 			}else if(mLines[0].contains("DISCONNECT:")){
 				// Disconnect message
 			}else if(mLines[0].contains("CHAT: ")){
 				// Message message
-			}else{
+			}else if(mLines[0].contains("JOIN_BROADCAST:")){
+
+			}else {
 				System.out.println("Bad msg");
 				// IDK message
 			}
@@ -69,21 +71,28 @@ public class SocketWorkerThread implements Runnable {
 
 	}
 
-	private void removeClientFromChannel(int roomRef, int memeberRef, String memberName) {
+	private void removeClientFromChannel(int roomRef, int memberRef, String memberName) {
 		Server s = ServerMain.server;
 		if(s.channelMembers.containsKey(roomRef)){
-			if(s.channelMembers.get(roomRef).containsKey(memeberRef)){
-				s.channelMembers.get(roomRef).remove(memeberRef);
-				sendLeaveReply(roomRef,memeberRef);
+			if(s.channelMembers.get(roomRef).containsKey(memberRef)){
+				s.channelMembers.get(roomRef).remove(memberRef);
+//				System.out.println("Channel: " + roomRef + " has " + s.channelMembers.get(roomRef).size() + " users left");
+				sendLeaveReply(roomRef,memberRef);
+				broadcast(roomRef,"JOIN_BROADCAST: " + memberName + " left " + s.channelTableByRef.get(roomRef) + " : " + roomRef + "\n");
+			}else{
+				createError(ErrorReporter.USER_NOT_IN_GROUP_C,ErrorReporter.USER_NOT_IN_GROUP_S);
+				return;
 			}
+		}else{
+			createError(ErrorReporter.GROUP_NOT_EXIST_C,ErrorReporter.GROUP_NOT_EXIST_S);
+			return;
 		}
 	}
 
 	private void sendLeaveReply(int roomRef, int memeberRef) {
 		String reply = "LEFT_CHATROOM: " + roomRef + "\n"
-				+"JOIN_ID: " + memeberRef +"\n";
+				+ "JOIN_ID: " + memeberRef +"\n";
 		addToSendQueue(reply);
-		//TODO: Close socket ?
 	}
 
 	private void joinClientToChannel(String clientName, String channelToJoin) {
@@ -94,7 +103,12 @@ public class SocketWorkerThread implements Runnable {
 		int memberRef = new Integer(refs.substring(0,refs.indexOf(":")));
 		int channelRef = new Integer(refs.substring(refs.indexOf(":")+1));
 		sendJoinReply(channelRef,memberRef,channelToJoin);
+		broadcast(channelRef,"JOIN_BROADCAST: " + clientName + " joined " + channelToJoin + " : " + channelRef + "\n");
 	}
+	private void broadcast(int channelRef, String m){
+		ServerMain.server.broadcast(channelRef,m);
+	}
+
 	private void createError(int code, String message){
 		String reply = "ERROR_CODE: " + code +"\n"
 				+ "ERROR_DESCRIPTION: " + message + "\n";
@@ -109,8 +123,8 @@ public class SocketWorkerThread implements Runnable {
 		addToSendQueue(reply);
 	}
 
-	private void addToSendQueue(String reply) {
-		System.out.println("Added to queue::\n" + reply);
+	public void addToSendQueue(String reply) {
+//		System.out.println("Added to queue::\n" + reply);
 		sendQueueWorkerThread.addMessageToQueue(reply);
 	}
 
@@ -118,11 +132,10 @@ public class SocketWorkerThread implements Runnable {
 		int clientRef = getClientRefIfExistElseCreate(clientName);
 		int channelRef = getChannelRefIfExistElseCreate(channelToJoin);
 		if(userExistsInChannel(channelRef,clientRef)){
-			System.out.println("User already in channel");
+//			System.out.println("User already in channel");
 			createError(ErrorReporter.USER_ALREADY_IN_GROUP_C,ErrorReporter.USER_ALREADY_IN_GROUP_S);
 			return null;
 		}else{
-			//TODO: Add to channel
 			addUserToChannel(channelRef,clientRef);
 		}
 		return clientRef+":"+channelRef;
@@ -131,17 +144,18 @@ public class SocketWorkerThread implements Runnable {
 	private void addUserToChannel(int channelRef, int clientRef) {
 		Server s = ServerMain.server;
 		if(!s.channelMembers.containsKey(channelRef)) {
-			s.channelMembers.put(channelRef, new ConcurrentHashMap<Integer, Socket>());
+			s.channelMembers.put(channelRef, new ConcurrentHashMap<Integer, SocketWorkerThread>());
 		}
-		s.channelMembers.get(channelRef).put(clientRef,socket);
+		s.channelMembers.get(channelRef).put(clientRef,this);
+//		System.out.println("Added to channel. Size now: " + s.channelMembers.size());
 	}
 
 	private boolean userExistsInChannel(int channelRef, int clientRef) {
-		System.out.println("Checking if " + clientRef + " is in " + channelRef);
+//		System.out.println("Checking if " + clientRef + " is in " + channelRef);
 		Server s = ServerMain.server;
 		if(s.channelMembers.containsKey(channelRef)){
 			boolean found = s.channelMembers.get(channelRef).containsKey(clientRef);
-			System.out.println("User: " + clientRef + " in: " + channelRef + " was " + (found==true?"found":"not found"));
+//			System.out.println("User: " + clientRef + " in: " + channelRef + " was " + (found==true?"found":"not found"));
 			return found;
 		}
 		System.out.println("No channel with ref " + channelRef);
@@ -152,14 +166,14 @@ public class SocketWorkerThread implements Runnable {
 		Server s = ServerMain.server;
 		if(s.channelTableByName.containsKey(channelToJoin)){
 			int ref = s.channelTableByName.get(channelToJoin);
-			System.out.println("Found Channel: "+channelToJoin+" with ref: " + ref);
+//			System.out.println("Found Channel: "+channelToJoin+" with ref: " + ref);
 			return ref;
 		}else{
 			int ref = UniqueRefGenerator.nextChannelRef();
-			System.out.println("Non Channel: "+channelToJoin+". Created with ref: " + ref);
+//			System.out.println("Non Channel: "+channelToJoin+". Created with ref: " + ref);
 			s.channelTableByName.put(channelToJoin,ref);
 			s.channelTableByRef.put(ref,channelToJoin);
-			s.channelMembers.put(ref,new ConcurrentHashMap<Integer, Socket>());
+			s.channelMembers.put(ref,new ConcurrentHashMap<Integer, SocketWorkerThread>());
 			return ref;
 		}
 	}
@@ -168,11 +182,11 @@ public class SocketWorkerThread implements Runnable {
 		Server s = ServerMain.server;
 		if(s.memberTableByName.containsKey(clientName)){
 			int ref = s.memberTableByName.get(clientName);
-			System.out.println("Found User: "+clientName + " with ref: " + ref);
+//			System.out.println("Found User: "+clientName + " with ref: " + ref);
 			return ref;
 		}else{
 			int ref = UniqueRefGenerator.nextClientRef();
-			System.out.println("Non User: "+clientName + ". Created with ref: " + ref);
+//			System.out.println("Non User: "+clientName + ". Created with ref: " + ref);
 			s.memberTableByName.put(clientName,ref);
 			s.memberTableByRef.put(ref,clientName);
 			return ref;
