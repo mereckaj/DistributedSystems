@@ -26,9 +26,9 @@ public class SocketWorkerThread implements Runnable {
 
 	@Override
 	public void run() {
-		System.out.println("Starting send queue worker");
+//		System.out.println("Starting send queue worker");
 		sendQueueWorkerThread.start();
-		System.out.println("send queue worker running");
+//		System.out.println("send queue worker running");
 //		while(true){
 		String m = readMessage();
 		dealWithMessage(m);
@@ -54,7 +54,7 @@ public class SocketWorkerThread implements Runnable {
 			}else if(mLines[0].contains("LEAVE_CHATROOM:")){
 				// Leave message
 				int roomRef = Integer.parseInt(mLines[0].substring(mLines[0].indexOf(":")+2));
-				int memberRef = Integer.parseInt((mLines[1].substring(mLines[1].indexOf(":")+1)).trim());
+				int memberRef = Integer.parseInt(mLines[1].substring(mLines[1].indexOf(":")+1).trim());
 				String memberName = mLines[2].substring(mLines[2].indexOf(":"));
 				removeClientFromChannel(roomRef,memberRef,memberName);
 			}else if(mLines[0].contains("DISCONNECT:")){
@@ -72,6 +72,7 @@ public class SocketWorkerThread implements Runnable {
 	}
 
 	private void removeClientFromChannel(int roomRef, int memberRef, String memberName) {
+		//TODO: not leaving
 		Server s = ServerMain.server;
 		if(s.channelMembers.containsKey(roomRef)){
 			if(s.channelMembers.get(roomRef).containsKey(memberRef)){
@@ -103,8 +104,19 @@ public class SocketWorkerThread implements Runnable {
 		int memberRef = new Integer(refs.substring(0,refs.indexOf(":")));
 		int channelRef = new Integer(refs.substring(refs.indexOf(":")+1));
 		sendJoinReply(channelRef,memberRef,channelToJoin);
-		broadcast(channelRef,"JOIN_BROADCAST: " + clientName + " joined " + channelToJoin + " : " + channelRef + "\n");
+		broadcast(channelRef,"JOIN_BROADCAST: " + lookupMemberNameByRef(memberRef) + " joined " + channelToJoin + " : " + channelRef + "\n");
 	}
+
+	private String lookupMemberNameByRef(int memberRef) {
+		Server s = ServerMain.server;
+		if(s.memberTableByRef.containsKey(memberRef)){
+			return s.memberTableByRef.get(memberRef);
+		}else{
+			//TODO: error instead of returning shit value
+			return "ChangeToErrorReport";
+		}
+	}
+
 	private void broadcast(int channelRef, String m){
 		ServerMain.server.broadcast(channelRef,m);
 	}
