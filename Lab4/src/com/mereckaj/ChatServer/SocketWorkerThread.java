@@ -174,8 +174,7 @@ public class SocketWorkerThread implements Runnable {
 	}
 	private void sendJoinReply(int roomref, int joinref, String channelName) {
 		String reply = "JOINED_CHATROOM: " + channelName +"\n"
-//				+ "SERVER_IP: " + socket.getLocalAddress().toString().substring(1) + "\n"
-				+ "SERVER_IP: " + "0" + "\n"
+				+ "SERVER_IP: " + socket.getLocalAddress().toString().substring(1) + "\n"
 				+ "PORT: " + "0" + "\n"
 				+ "ROOM_REF: " + roomref + "\n"
 				+ "JOIN_ID: " + joinref + "\n";
