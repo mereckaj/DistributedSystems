@@ -10,6 +10,7 @@ public class SocketWorkerThread implements Runnable {
 	private InputStreamReader isr;
 	private OutputStreamWriter osw;
 	private MessageQueueWorkerThread sendQueueWorkerThread;
+	private static final String STUDENT_ID_TOKEN = "48ffb53659413c0ee24b09bffed47b329f7b5ac80c23d908e952e328814dfb49";
 	public SocketWorkerThread(Socket socket) {
 		this.socket = socket;
 		try {
@@ -38,7 +39,16 @@ public class SocketWorkerThread implements Runnable {
 			System.out.println("What is this message?: " + m);
 		}else{
 			System.out.println("Message has : " + mLines.length +" lines");
-			if(mLines[0].contains("JOIN_CHATROOM:")){
+			if(mLines[0].contains("HELO")){
+				String text = mLines[0].substring("HELO".length()+1,mLines[0].length()-1);
+				String response = "HELO " + text + "\n" +
+						"IP:" + socket.getLocalAddress().toString().substring(1) + "\n" +
+						"Port:" + ServerMain.PORT +
+						"StudentID:" + STUDENT_ID_TOKEN + "\n";
+				addToSendQueue(response);
+			}else if(mLines[0].contains("KILL_SERVICE")){
+				ServerMain.server.terminate();
+			}else if(mLines[0].contains("JOIN_CHATROOM:")){
 				// Join message
 				System.out.println("Join");
 				String channelToJoin = mLines[0].substring(mLines[0].indexOf(":")+2);
