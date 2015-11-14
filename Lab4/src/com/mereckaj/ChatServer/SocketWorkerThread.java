@@ -10,6 +10,7 @@ public class SocketWorkerThread implements Runnable {
 	private InputStreamReader isr;
 	private OutputStreamWriter osw;
 	private MessageQueueWorkerThread sendQueueWorkerThread;
+	private boolean running;
 	private static final String STUDENT_ID_TOKEN = "48ffb53659413c0ee24b09bffed47b329f7b5ac80c23d908e952e328814dfb49";
 	public SocketWorkerThread(Socket socket) {
 		this.socket = socket;
@@ -27,10 +28,11 @@ public class SocketWorkerThread implements Runnable {
 //		System.out.println("Starting send queue worker");
 		sendQueueWorkerThread.start();
 //		System.out.println("send queue worker running");
-//		while(true){
-		String m = readMessage();
-		dealWithMessage(m);
-//		}
+		running = true;
+		while(running){
+			String m = readMessage();
+			dealWithMessage(m);
+		}
 	}
 
 	private void dealWithMessage(String m) {
@@ -263,6 +265,7 @@ public class SocketWorkerThread implements Runnable {
 	}
 	private void terminate(){
 		try {
+			running = false;
 			socket.close();
 			sendQueueWorkerThread.join();
 			Thread.currentThread().join();
