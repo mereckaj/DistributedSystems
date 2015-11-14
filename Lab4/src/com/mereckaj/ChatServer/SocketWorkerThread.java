@@ -82,7 +82,7 @@ public class SocketWorkerThread implements Runnable {
 				System.out.println("Message->"+m);
 				int roomRef = Integer.parseInt(mLines[0].substring(mLines[0].indexOf(":")+1).trim());
 				int memberRef = Integer.parseInt(mLines[1].substring(mLines[1].indexOf(":")+1).trim());
-				String clientName = mLines[2].substring(mLines[2].indexOf(":")+1);
+				String clientName = mLines[2].substring(mLines[2].indexOf(":")+1).trim();
 				String message = mLines[3].substring(mLines[3].indexOf(":")+1);
 				sendMessageToGroup(roomRef,memberRef,clientName,message);
 //				System.out.println("Message from: " + clientName +"{"+memberRef+"} to: " + roomRef + ": " + message);
@@ -112,7 +112,7 @@ public class SocketWorkerThread implements Runnable {
 		Server s = ServerMain.server;
 		if(s.channelMembers.containsKey(roomRef)){
 			if(s.channelMembers.get(roomRef).containsKey(memberRef)){
-				broadcast(roomRef,"CHAT:" + roomRef +"\nJOIN_ID:" + memberRef +"\nCLIENT_NAME::"+clientName+"\nMESSAGE:"+ message+ "\n\n");
+				broadcast(roomRef,"CHAT:" + roomRef +"\nJOIN_ID:" + memberRef +"\nCLIENT_NAME:"+clientName+"\nMESSAGE:"+ message+ "\n\n");
 			}else{
 				createError(ErrorReporter.USER_NOT_IN_GROUP_C,ErrorReporter.USER_NOT_IN_GROUP_S);
 			}
