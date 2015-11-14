@@ -70,12 +70,12 @@ public class SocketWorkerThread implements Runnable {
 				System.out.println("Leave->"+m);
 				int roomRef = Integer.parseInt(mLines[0].substring(mLines[0].indexOf(":")+1).trim());
 				int memberRef = Integer.parseInt(mLines[1].substring(mLines[1].indexOf(":")+1).trim());
-				String memberName = mLines[2].substring(mLines[2].indexOf(":"));
+				String memberName = mLines[2].substring(mLines[2].indexOf(":")+1);
 				removeClientFromChannel(roomRef,memberRef,memberName);
 			}else if(mLines[0].contains("DISCONNECT:")){
 				// Disconnect message
 				System.out.println("Disconnect->"+m);
-				String memberName = mLines[2].substring(mLines[2].indexOf(":"));
+				String memberName = mLines[2].substring(mLines[2].indexOf(":")+1);
 				disconnectUser(memberName);
 			}else if(mLines[0].contains("CHAT:")){
 				// Message message
