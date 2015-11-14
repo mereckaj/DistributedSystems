@@ -129,7 +129,7 @@ public class SocketWorkerThread implements Runnable {
 				s.channelMembers.get(roomRef).remove(memberRef);
 				sendLeaveReply(roomRef,memberRef);
 				broadcast(roomRef,"CHAT:" + roomRef +"\n" +"CLIENT_NAME:"+memberName+"\nMESSAGE:"
-						+memberName+" has joined this chatroom." + "\n\n");
+						+memberName+" has left this chatroom." + "\n\n");
 			}else{
 				createError(ErrorReporter.USER_NOT_IN_GROUP_C,ErrorReporter.USER_NOT_IN_GROUP_S);
 			}
