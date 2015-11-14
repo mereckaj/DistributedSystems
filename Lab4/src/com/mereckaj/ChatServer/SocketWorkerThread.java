@@ -86,7 +86,6 @@ public class SocketWorkerThread implements Runnable {
 				String message = mLines[3].substring(mLines[3].indexOf(":")+1).trim();
 				sendMessageToGroup(roomRef,memberRef,clientName,message);
 //				System.out.println("Message from: " + clientName +"{"+memberRef+"} to: " + roomRef + ": " + message);
-
 			}else if(mLines[0].contains("JOIN_BROADCAST:")){
 				System.out.println("join broadcast received->"+m);
 			}else {
@@ -112,7 +111,7 @@ public class SocketWorkerThread implements Runnable {
 		Server s = ServerMain.server;
 		if(s.channelMembers.containsKey(roomRef)){
 			if(s.channelMembers.get(roomRef).containsKey(memberRef)){
-				broadcast(roomRef,"CHAT:" + roomRef +"\nJOIN_ID:" + memberRef +"\nCLIENT_NAME::"+clientName+"\nMESSAGE:"+ message+ "\n\n");
+				broadcast(roomRef,"CHAT:" + roomRef +"\n" + "CLIENT_NAME:"+clientName+"\nMESSAGE:"+ message+ "\n\n");
 			}else{
 				createError(ErrorReporter.USER_NOT_IN_GROUP_C,ErrorReporter.USER_NOT_IN_GROUP_S);
 			}
@@ -263,6 +262,7 @@ public class SocketWorkerThread implements Runnable {
 			try {
 				if(socket.isClosed()){
 					terminate();
+					return "";
 				}
 				read = isr.read(buffer, 0, buffer.length);
 				if(read>0){
