@@ -127,8 +127,7 @@ public class SocketWorkerThread implements Runnable {
 				s.channelMembers.get(roomRef).remove(memberRef);
 //				System.out.println("Channel: " + roomRef + " has " + s.channelMembers.get(roomRef).size() + " users left");
 				sendLeaveReply(roomRef,memberRef);
-				broadcast(roomRef,"CHAT: " + memberName + "\n");
-//				" left " + s.channelTableByRef.get(roomRef) + " : " + roomRef + "\n");
+//				broadcast(roomRef,"JOIN_BROADCAST: " + memberName + " left " + s.channelTableByRef.get(roomRef) + " : " + roomRef + "\n");
 			}else{
 				createError(ErrorReporter.USER_NOT_IN_GROUP_C,ErrorReporter.USER_NOT_IN_GROUP_S);
 			}
@@ -151,7 +150,8 @@ public class SocketWorkerThread implements Runnable {
 		int memberRef = new Integer(refs.substring(0,refs.indexOf(":")));
 		int channelRef = new Integer(refs.substring(refs.indexOf(":")+1));
 		sendJoinReply(channelRef,memberRef,channelToJoin);
-		broadcast(channelRef,"JOIN_BROADCAST: " + lookupMemberNameByRef(memberRef) + " joined " + channelToJoin + " : " + channelRef + "\n");
+		broadcast(channelRef,"CHAT: " + lookupMemberNameByRef(memberRef) + "\n");
+//		" joined " + channelToJoin + " : " + channelRef + "\n");
 	}
 
 	private String lookupMemberNameByRef(int memberRef) {
