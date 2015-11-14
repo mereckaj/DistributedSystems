@@ -150,7 +150,7 @@ public class SocketWorkerThread implements Runnable {
 		int memberRef = new Integer(refs.substring(0,refs.indexOf(":")));
 		int roomRef = new Integer(refs.substring(refs.indexOf(":")+1));
 		sendJoinReply(roomRef,memberRef,channelToJoin);
-		broadcast(roomRef,"CHAT:" + roomRef +"\nJOIN_ID:" + memberRef +"\nCLIENT_NAME:"+clientName+"\nMESSAGE:"
+		broadcast(roomRef,"CHAT:" + roomRef +"\n" +"CLIENT_NAME:"+clientName+"\nMESSAGE:"
 				+ clientName + " joined room " + ServerMain.server.channelTableByRef.get(roomRef)+ "\n\n");
 	}
 
