@@ -261,9 +261,13 @@ public class SocketWorkerThread implements Runnable {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		result = new char[read];
-		System.arraycopy(buffer,0,result,0,read);
-		return new String(result);
+		if(read>0){
+			result = new char[read];
+			System.arraycopy(buffer, 0, result, 0, read);
+			return new String(result);
+		}else{
+			return "";
+		}
 	}
 	private void terminate(){
 		try {
