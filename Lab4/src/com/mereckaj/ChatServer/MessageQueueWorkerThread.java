@@ -9,9 +9,9 @@ import java.util.concurrent.LinkedBlockingQueue;
  * Created by mereckaj on 11/13/15 12:24 PM.
  */
 public class MessageQueueWorkerThread extends Thread {
-	private OutputStreamWriter osw;
-	private BlockingQueue<String> messageQueue;
-	private boolean running;
+	public OutputStreamWriter osw;
+	public BlockingQueue<String> messageQueue;
+	public boolean running;
 	public MessageQueueWorkerThread(OutputStreamWriter osw){
 		this.osw = osw;
 		this.messageQueue = new LinkedBlockingQueue<String>();

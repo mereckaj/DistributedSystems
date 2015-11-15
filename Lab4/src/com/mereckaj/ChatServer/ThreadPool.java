@@ -1,12 +1,7 @@
 package com.mereckaj.ChatServer;
 
-/**
- * Created by mereckaj on 11/12/15.
- */
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import static java.lang.Thread.sleep;
 
 public class ThreadPool {
 	public static int THREAD_POOL_SIZE = 50;

@@ -52,6 +52,7 @@ public class SocketWorkerThread implements Runnable {
 			}else if(mLines[0].contains("KILL_SERVICE")){
 				System.out.println("Kill->" + m);
 				ServerMain.server.terminate();
+				terminate();
 			}else if(mLines[0].contains("JOIN_CHATROOM:")){
 				// Join message
 				System.out.println("Join->" + m);
@@ -285,13 +286,16 @@ public class SocketWorkerThread implements Runnable {
 		}
 		return new String(result);
 	}
-	private void terminate(){
+	public void terminate(){
 		try {
 			running = false;
+			sendQueueWorkerThread.running = false;
+			sendQueueWorkerThread.osw.close();
+			sendQueueWorkerThread.messageQueue.clear();
+			isr.close();
+			osw.close();
 			socket.close();
-			sendQueueWorkerThread.join();
-			Thread.currentThread().join();
-		} catch (IOException | InterruptedException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}

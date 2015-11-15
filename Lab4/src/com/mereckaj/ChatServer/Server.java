@@ -66,6 +66,16 @@ public class Server {
 
 	// Closes the server socket, shuts down the ThreadPool
 	public void terminate(){
+		// Disconnect all of the users
+		ConcurrentHashMap<Integer,SocketWorkerThread> memberList;
+		for(Integer roomRef : channelMembers.keySet()){
+			memberList = channelMembers.get(roomRef);
+			for(Integer memberRef : memberList.keySet()){
+				memberList.get(memberRef).terminate();
+			}
+		}
+
+		// Terminate server
 		try {
 			running = false;
 			tp.terminate();
