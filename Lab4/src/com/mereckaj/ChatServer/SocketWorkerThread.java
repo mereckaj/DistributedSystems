@@ -103,11 +103,7 @@ public class SocketWorkerThread implements Runnable {
 		if(s.memberTableByName.containsKey(memberName)){
 			ref = s.memberTableByName.get(memberName);
 			for(Integer i : s.channelMembers.keySet()){
-				t= s.channelMembers.get(i);
-				if(t.containsKey(ref)){
-					t.remove(ref);
-					System.out.println("Removed user: " + ref + " from group " + i);
-				}
+				removeClientFromChannel(i,ref,memberName);
 			}
 		}else{
 			System.out.println("User not found, closign this conenction");
@@ -130,7 +126,6 @@ public class SocketWorkerThread implements Runnable {
 	}
 
 	private void removeClientFromChannel(int roomRef, int memberRef, String memberName) {
-		//TODO: not leaving
 		Server s = ServerMain.server;
 		if(s.channelMembers.containsKey(roomRef)){
 			if(s.channelMembers.get(roomRef).containsKey(memberRef)){
@@ -194,7 +189,7 @@ public class SocketWorkerThread implements Runnable {
 	}
 
 	public void addToSendQueue(String reply) {
-		System.out.println("Added to queue::\n" + reply);
+//		System.out.println("Added to queue::\n" + reply);
 		sendQueueWorkerThread.addMessageToQueue(reply);
 	}
 
