@@ -107,7 +107,6 @@ public class SocketWorkerThread implements Runnable {
 			}
 		}else{
 			System.out.println("User not found, closign this conenction");
-			//TODO: remove user from each channel it was in;
 //			this.terminate();
 		}
 	}
@@ -130,11 +129,11 @@ public class SocketWorkerThread implements Runnable {
 		if(s.channelMembers.containsKey(roomRef)){
 			if(s.channelMembers.get(roomRef).containsKey(memberRef)){
 				s.channelMembers.get(roomRef).remove(memberRef);
-				sendLeaveReply(roomRef,memberRef);
 				broadcast(roomRef,"CHAT:" + roomRef +"\n" +"CLIENT_NAME:"+memberName+"\nMESSAGE:"
 						+memberName+" has left this chatroom." + "\n\n");
 				addToSendQueue("CHAT:" + roomRef +"\n" +"CLIENT_NAME:"+memberName+"\nMESSAGE:"
 						+memberName+" has left this chatroom." + "\n\n");
+				sendLeaveReply(roomRef,memberRef);
 			}else{
 				createError(ErrorReporter.USER_NOT_IN_GROUP_C,ErrorReporter.USER_NOT_IN_GROUP_S);
 			}
