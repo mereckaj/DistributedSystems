@@ -98,12 +98,18 @@ public class SocketWorkerThread implements Runnable {
 
 	private void disconnectUser(String memberName) {
 		Server s = ServerMain.server;
-		int ref;
-		ConcurrentHashMap<Integer,SocketWorkerThread> t;
+		int userRef;
+		ConcurrentHashMap<Integer,SocketWorkerThread> channelUserMap;
 		if(s.memberTableByName.containsKey(memberName)){
-			ref = s.memberTableByName.get(memberName);
-			for(Integer i : s.channelMembers.keySet()){
-				removeClientFromChannel(i,ref,memberName);
+			userRef = s.memberTableByName.get(memberName);
+			for(Integer channelRef : s.channelMembers.keySet()){
+				channelUserMap= s.channelMembers.get(channelRef);
+				if(channelUserMap.containsKey(userRef)){
+					broadcast(channelRef,"CHAT:" + channelRef +"\n" +"CLIENT_NAME:"+memberName+"\nMESSAGE:"
+							+memberName+" has left this chatroom." + "\n\n");
+					channelUserMap.remove(userRef);
+					System.out.println("Removed user: " + userRef + " from group " + channelRef);
+				}
 			}
 		}else{
 			System.out.println("User not found, closign this conenction");
@@ -129,11 +135,11 @@ public class SocketWorkerThread implements Runnable {
 		if(s.channelMembers.containsKey(roomRef)){
 			if(s.channelMembers.get(roomRef).containsKey(memberRef)){
 				s.channelMembers.get(roomRef).remove(memberRef);
+				sendLeaveReply(roomRef,memberRef);
 				broadcast(roomRef,"CHAT:" + roomRef +"\n" +"CLIENT_NAME:"+memberName+"\nMESSAGE:"
 						+memberName+" has left this chatroom." + "\n\n");
 				addToSendQueue("CHAT:" + roomRef +"\n" +"CLIENT_NAME:"+memberName+"\nMESSAGE:"
 						+memberName+" has left this chatroom." + "\n\n");
-				sendLeaveReply(roomRef,memberRef);
 			}else{
 				createError(ErrorReporter.USER_NOT_IN_GROUP_C,ErrorReporter.USER_NOT_IN_GROUP_S);
 			}
