@@ -51,6 +51,7 @@ public class SocketWorkerThread implements Runnable {
 				addToSendQueue(response);
 			}else if(mLines[0].contains("KILL_SERVICE")){
 				System.out.println("Kill->" + m);
+				System.exit(1);
 				ServerMain.server.terminate();
 				terminate();
 			}else if(mLines[0].contains("JOIN_CHATROOM:")){
@@ -281,6 +282,9 @@ public class SocketWorkerThread implements Runnable {
 					get = false;
 				}
 			} catch (IOException e) {
+				if(ServerMain.server.running==false){
+					get= false;
+				}
 				e.printStackTrace();
 			}
 		}
