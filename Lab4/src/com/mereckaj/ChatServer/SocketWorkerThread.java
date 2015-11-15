@@ -97,14 +97,23 @@ public class SocketWorkerThread implements Runnable {
 	}
 
 	private void disconnectUser(String memberName) {
-//		Server s = ServerMain.server;
-//		int ref;
-//		if(s.memberTableByName.containsKey(memberName)){
-//			ref = s.memberTableByName.get(memberName);
-//		}else{
-//			System.out.println("User not found, closign this conenction");
-			this.terminate();
-//		}
+		Server s = ServerMain.server;
+		int ref;
+		ConcurrentHashMap<Integer,SocketWorkerThread> t;
+		if(s.memberTableByName.containsKey(memberName)){
+			ref = s.memberTableByName.get(memberName);
+			for(Integer i : s.channelMembers.keySet()){
+				t= s.channelMembers.get(i);
+				if(t.containsKey(ref)){
+					t.remove(ref);
+					System.out.println("Removed user: " + ref + " from group " + i);
+				}
+			}
+		}else{
+			System.out.println("User not found, closign this conenction");
+			//TODO: remove user from each channel it was in;
+//			this.terminate();
+		}
 	}
 
 	private void sendMessageToGroup(int roomRef, int memberRef, String clientName, String message) {
